@@ -81,6 +81,25 @@ namespace WebApplicationDB.Controllers
                         status = false
                     });
 
+                // Adds rows to DB table
+                using (WeatherContext db = new WeatherContext())
+                {
+                    foreach (WeatherRow row in excelRows)
+                        db.WeatherRows.Add(row);
+                    try
+                    {
+                        db.SaveChanges();
+                    }
+                    catch
+                    {
+                        return RedirectToActionPermanent("AddExcelTable", "WeatherDB", new
+                        {
+                            statusstring = "One or more from uploading rows already exists in DataBase <br> File wasn't uploaded",
+                            status = false
+                        });
+                    }
+                }
+
                 // Sends operation result
                 return RedirectToActionPermanent("AddExcelTable", "WeatherDB", new
                 {
