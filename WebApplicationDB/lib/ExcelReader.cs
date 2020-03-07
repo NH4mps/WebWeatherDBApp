@@ -102,28 +102,31 @@ namespace WebApplicationDB.lib
                 excelBook = new XSSFWorkbook(file);
             }
 
-            ISheet sheet = excelBook.GetSheetAt(0);
 
-            for (int i = 4; i < sheet.LastRowNum; i++)
+            for(int i = 0; i < excelBook.NumberOfSheets; i++)
             {
-                IRow row = sheet.GetRow(i);
-                res.Add(new WeatherRow
+                ISheet sheet = excelBook.GetSheetAt(i);
+                for (int j = 4; j < sheet.LastRowNum; j++)
                 {
-                    Id = DateTime.Parse(row.GetCell(0).ToString() + " " + row.GetCell(1).ToString()),
-                    T = float.Parse(row.GetCell(2).ToString()),
-                    Humidity = float.Parse(row.GetCell(3).ToString()),
-                    Td = float.Parse(row.GetCell(4).ToString()),
-                    Pressure = int.Parse(row.GetCell(5).ToString()),
-                    WindDir = row.GetCell(6)?.ToString(),
-                    WindSpeed = nullableIntParse(row.GetCell(7).ToString()),
-                    Cloudy = nullableIntParse(row.GetCell(8).ToString()),
-                    H = nullableIntParse(row.GetCell(9).ToString()),
-                    VV = nullableIntParse(row.GetCell(10).ToString()),
-                    WeatherConds = row.GetCell(11)?.ToString()
-                });
+                    IRow row = sheet.GetRow(i);
+                    res.Add(new WeatherRow
+                    {
+                        Id = DateTime.Parse(row.GetCell(0).ToString() + " " + row.GetCell(1).ToString()),
+                        T = float.Parse(row.GetCell(2).ToString()),
+                        Humidity = float.Parse(row.GetCell(3).ToString()),
+                        Td = float.Parse(row.GetCell(4).ToString()),
+                        Pressure = int.Parse(row.GetCell(5).ToString()),
+                        WindDir = row.GetCell(6)?.ToString(),
+                        WindSpeed = nullableIntParse(row.GetCell(7).ToString()),
+                        Cloudy = nullableIntParse(row.GetCell(8).ToString()),
+                        H = nullableIntParse(row.GetCell(9).ToString()),
+                        VV = nullableIntParse(row.GetCell(10).ToString()),
+                        WeatherConds = row.GetCell(11)?.ToString()
+                    });
+                }
             }
-                
 
+                
             return res;
         }
     }
