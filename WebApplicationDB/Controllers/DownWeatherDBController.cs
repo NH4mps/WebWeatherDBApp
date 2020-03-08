@@ -32,7 +32,6 @@ namespace WebApplicationDB.Controllers
             }
         }
 
-        [HttpGet]
         public async Task<IActionResult> ShowDBTable(int? currentYear, int? currentMonth, int pageNum = 1)
         {
             int pageSize = 15;

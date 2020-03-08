@@ -3,124 +3,180 @@
 @{
     ViewData["Title"] = "ShowDbPage";
 }
-    <div class="text-danger">
-        @ViewBag.Message
-    </div>
-    <form>
-        <div class="form-row align-items-center">
-            <div class="col-auto my-1">
-                <label class="mr-sm-2" for="inlineFormCustomSelect1">Year</label>
-                <select class="custom-select mr-sm-2" id="inlineFormCustomSelect1" name="currentYear">
+<div class="text-danger">
+    @ViewBag.Message
+</div>
+<form>
+    <div class="form-row align-items-center text-center">
+        <div class="col-auto my-1">
+            <select class="custom-select mr-sm-2" id="inlineFormCustomSelect1" name="currentYear">
+                @if (Model.Data.CurrentYear == null)
+                {
+                    <option selected value="@Model.Data.CurrentYear">Any Year</option>
+                }
+                else
+                {
                     <option selected value="@Model.Data.CurrentYear">@Model.Data.CurrentYear</option>
-                    @if (Model.Data.CurrentYear != null)
+                    <option value="@null">Any Year</option>
+                }
+                @foreach (YearWithMonths yearWithMonths in Model.Data.YearsWithMonths)
+                {
+                    if (yearWithMonths.Year != Model.Data.CurrentYear)
                     {
-                        <option value="@null">@null</option>
+                        <option value="@yearWithMonths.Year">@yearWithMonths.Year</option>
                     }
-                    @foreach (YearWithMonths yearWithMonths in Model.Data.YearsWithMonths)
-                    {
-                        if (yearWithMonths.Year != Model.Data.CurrentYear)
-                        {
-                            <option value="@yearWithMonths.Year">@yearWithMonths.Year</option>
-                        }
-                    }
-                </select>
-            </div>
-            <div class="col-auto my-1">
-                <label class="mr-sm-2" for="inlineFormCustomSelect2">Month</label>
-                <select class="custom-select mr-sm-2" id="inlineFormCustomSelect2" name="currentMonth">
-                    @if (Model.Data.CurrentMonth != null)
-                    {
-                        <option value="@null">@null</option>
-                    }
-                    <option selected value="@Model.Data.CurrentMonth">@Model.Data.CurrentMonth</option>
-                    @for (int i = 0; i < 12; i++)
-                    {
-                        if (i + 1 != Model.Data.CurrentMonth)
-                        {
-                            <option value="@(i + 1)">@(i + 1)</option>
-                        }
-                    }
-                </select>
-            </div>
-            <div class="col-auto my-1">
-                <label class="mr-sm-2" for="inlineFormButton">Button</label>
-                <button class="btn btn-primary mr-sm-2" type="submit" id="inlineFormButton">Submit</button>
-            </div>
+                }
+            </select>
         </div>
+        <div class="col-auto my-1">
+            <select class="custom-select mr-sm-2" id="inlineFormCustomSelect2" name="currentMonth">
+                @if (Model.Data.CurrentMonth == null)
+                {
+                    <option selected value="@Model.Data.CurrentMonth">Any Month</option>
+                }
+                else
+                {
+                    <option selected value="@Model.Data.CurrentMonth">@Model.Data.CurrentMonth</option>
+                    <option value="@null">Any Month</option>
+                }
+                @for (int i = 0; i < 12; i++)
+                {
+                    if (i + 1 != Model.Data.CurrentMonth)
+                    {
+                        <option value="@(i + 1)">@(i + 1)</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="col-auto my-1">
+            <button class="btn btn-primary mr-sm-2" type="submit" id="inlineFormButton">Submit</button>
+        </div>
+    </div>
 </form>
-    <h2>Weather forecast archive</h2>
-    <div class="text-center">
+
+<h2>Weather forecast archive</h2>
+
+<form method="post"
+      asp-action="ShowDBTable"
+      asp-route-currentYear="@Model.Data.CurrentYear"
+      asp-route-currentMonth="@Model.Data.CurrentMonth">
+    <div class="form-row justify-content-center">
+        <div class="col-3"></div>
         @if (Model.Pages.HasPreviousPage)
         {
-            <a asp-action="ShowDBTable"
-               asp-route-pageNum="@(Model.Pages.PageNumber - 1)"
-               asp-route-currentYear="@Model.Data.CurrentYear"
-               asp-route-currentMonth="@Model.Data.CurrentMonth"
-               class="btn btn-outline-dark">
-                <i class="glyphicon glyphicon-chevron-left"></i>
-                Назад
-            </a>
+            <div class="col-1">
+                <a asp-action="ShowDBTable"
+                   asp-route-pageNum="1"
+                   asp-route-currentYear="@Model.Data.CurrentYear"
+                   asp-route-currentMonth="@Model.Data.CurrentMonth"
+                   class="btn btn-outline-dark">
+                    <i class="glyphicon glyphicon-chevron-left"></i>
+                    &lt&lt
+                </a>
+            </div>
+            <div class="col-1">
+                <a asp-action="ShowDBTable"
+                   asp-route-pageNum="@(Model.Pages.PageNumber - 1)"
+                   asp-route-currentYear="@Model.Data.CurrentYear"
+                   asp-route-currentMonth="@Model.Data.CurrentMonth"
+                   class="btn btn-outline-dark">
+                    <i class="glyphicon glyphicon-chevron-left"></i>
+                    Back
+                </a>
+            </div>
         }
+        else
+        {
+            <div class="col-2"></div>
+        }
+
+        <div class="col-1">
+            <input id="InputPage" type="number" size="@Model.Pages.TotalPages" name="pageNum" min="1" max="@Model.Pages.TotalPages" value="@Model.Pages.PageNumber">
+        </div>
+        <div class="col-1">
+            <button type="submit" class="btn btn-outline-dark">Set</button>
+        </div>
+
         @if (Model.Pages.HasNextPage)
         {
-            <a asp-action="ShowDBTable"
-               asp-route-pageNum="@(Model.Pages.PageNumber + 1)"
-               asp-route-currentYear="@Model.Data.CurrentYear"
-               asp-route-currentMonth="@Model.Data.CurrentMonth"
-               class="btn btn-outline-dark">
-                Вперед
-                <i class="glyphicon glyphicon-chevron-right"></i>
-            </a>
+            <div class="col-1">
+                <a asp-action="ShowDBTable"
+                   asp-route-pageNum="@(Model.Pages.PageNumber + 1)"
+                   asp-route-currentYear="@Model.Data.CurrentYear"
+                   asp-route-currentMonth="@Model.Data.CurrentMonth"
+                   class="btn btn-outline-dark">
+                    Forward
+                    <i class="glyphicon glyphicon-chevron-right"></i>
+                </a>
+            </div>
+            <div class="col-1">
+                <a asp-action="ShowDBTable"
+                   asp-route-pageNum="@(Model.Pages.TotalPages)"
+                   asp-route-currentYear="@Model.Data.CurrentYear"
+                   asp-route-currentMonth="@Model.Data.CurrentMonth"
+                   class="btn btn-outline-dark">
+                    <i class="glyphicon glyphicon-chevron-left"></i>
+                    &gt&gt
+                </a>
+            </div>
         }
+        else
+        {
+            <div class="col-2"></div>
+        }
+        <div class="col-3"></div>
     </div>
-    <table class="table">
+</form>
+
+<table class="table">
+    <tr>
+        <th>Дата/Время (московское)</th>
+        <th>T</th>
+        <th>Отн. влажность воздуха, %</th>
+        <th>Td, мм</th>
+        <th>Атм. давление, мм рт.ст.</th>
+        <th>Направление ветра</th>
+        <th>Скорость ветра, м/с</th>
+        <th>Облачность, %</th>
+        <th>h</th>
+        <th>VV</th>
+        <th>Погодные явления</th>
+    </tr>
+    @foreach (WeatherRow row in Model.Data.WeatherRows)
+    {
         <tr>
-            <th>Дата/Время (московское)</th>
-            <th>T</th>
-            <th>Отн. влажность воздуха, %</th>
-            <th>Td, мм</th>
-            <th>Атм. давление, мм рт.ст.</th>
-            <th>Направление ветра</th>
-            <th>Скорость ветра, м/с</th>
-            <th>Облачность, %</th>
-            <th>h</th>
-            <th>VV</th>
-            <th>Погодные явления</th>
+            <td>@row.Id</td>
+            <td>@row.T</td>
+            <td>@row.Humidity</td>
+            <td>@row.Td</td>
+            <td>@row.Pressure</td>
+            <td>@row.WindDir</td>
+            <td>@row.WindSpeed</td>
+            <td>@row.Cloudy</td>
+            <td>@row.H</td>
+            <td>@row.VV</td>
+            <td>@row.WeatherConds</td>
         </tr>
-        @foreach (WeatherRow row in Model.Data.WeatherRows)
-        {
-            <tr>
-                <td>@row.Id</td>
-                <td>@row.T</td>
-                <td>@row.Humidity</td>
-                <td>@row.Td</td>
-                <td>@row.Pressure</td>
-                <td>@row.WindDir</td>
-                <td>@row.WindSpeed</td>
-                <td>@row.Cloudy</td>
-                <td>@row.H</td>
-                <td>@row.VV</td>
-                <td>@row.WeatherConds</td>
-            </tr>
-        }
-    </table>
-    <div class="text-center">
-        @if (Model.Pages.HasPreviousPage)
-        {
-            <a asp-action="ShowDBTable"
-               asp-route-pageNum="@(Model.Pages.PageNumber - 1)"
-               class="btn btn-outline-dark">
-                <i class="glyphicon glyphicon-chevron-left"></i>
-                Назад
-            </a>
-        }
-        @if (Model.Pages.HasNextPage)
-        {
-            <a asp-action="ShowDBTable"
-               asp-route-pageNum="@(Model.Pages.PageNumber + 1)"
-               class="btn btn-outline-dark">
-                Вперед
-                <i class="glyphicon glyphicon-chevron-right"></i>
-            </a>
-        }
-    </div>
+    }
+</table>
+
+<div class="text-center">
+    @if (Model.Pages.HasPreviousPage)
+    {
+        <a asp-action="ShowDBTable"
+           asp-route-pageNum="@(Model.Pages.PageNumber - 1)"
+           class="btn btn-outline-dark">
+            <i class="glyphicon glyphicon-chevron-left"></i>
+            Назад
+        </a>
+    }
+    @if (Model.Pages.HasNextPage)
+    {
+        <a asp-action="ShowDBTable"
+           asp-route-pageNum="@(Model.Pages.PageNumber + 1)"
+           class="btn btn-outline-dark">
+            Вперед
+            <i class="glyphicon glyphicon-chevron-right"></i>
+        </a>
+    }
+</div>
