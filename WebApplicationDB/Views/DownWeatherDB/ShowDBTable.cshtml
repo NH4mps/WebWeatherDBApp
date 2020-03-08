@@ -3,13 +3,19 @@
 @{
     ViewData["Title"] = "ShowDbPage";
 }
-
+    <div class="text-danger">
+        @ViewBag.Message
+    </div>
     <form>
         <div class="form-row align-items-center">
             <div class="col-auto my-1">
-                <label class="mr-sm-2 sr-only" for="inlineFormCustomSelect">Preference</label>
-                <select class="custom-select mr-sm-2" id="inlineFormCustomSelect" name="currentYear">
+                <label class="mr-sm-2" for="inlineFormCustomSelect1">Year</label>
+                <select class="custom-select mr-sm-2" id="inlineFormCustomSelect1" name="currentYear">
                     <option selected value="@Model.Data.CurrentYear">@Model.Data.CurrentYear</option>
+                    @if (Model.Data.CurrentYear != null)
+                    {
+                        <option value="@null">@null</option>
+                    }
                     @foreach (YearWithMonths yearWithMonths in Model.Data.YearsWithMonths)
                     {
                         if (yearWithMonths.Year != Model.Data.CurrentYear)
@@ -17,17 +23,31 @@
                             <option value="@yearWithMonths.Year">@yearWithMonths.Year</option>
                         }
                     }
-                    @if (Model.Data.CurrentYear != null)
+                </select>
+            </div>
+            <div class="col-auto my-1">
+                <label class="mr-sm-2" for="inlineFormCustomSelect2">Month</label>
+                <select class="custom-select mr-sm-2" id="inlineFormCustomSelect2" name="currentMonth">
+                    @if (Model.Data.CurrentMonth != null)
                     {
                         <option value="@null">@null</option>
+                    }
+                    <option selected value="@Model.Data.CurrentMonth">@Model.Data.CurrentMonth</option>
+                    @for (int i = 0; i < 12; i++)
+                    {
+                        if (i + 1 != Model.Data.CurrentMonth)
+                        {
+                            <option value="@(i + 1)">@(i + 1)</option>
+                        }
                     }
                 </select>
             </div>
             <div class="col-auto my-1">
-                <button type="submit" class="btn btn-primary">Submit</button>
+                <label class="mr-sm-2" for="inlineFormButton">Button</label>
+                <button class="btn btn-primary mr-sm-2" type="submit" id="inlineFormButton">Submit</button>
             </div>
         </div>
-    </form>
+</form>
     <h2>Weather forecast archive</h2>
     <div class="text-center">
         @if (Model.Pages.HasPreviousPage)
@@ -35,6 +55,7 @@
             <a asp-action="ShowDBTable"
                asp-route-pageNum="@(Model.Pages.PageNumber - 1)"
                asp-route-currentYear="@Model.Data.CurrentYear"
+               asp-route-currentMonth="@Model.Data.CurrentMonth"
                class="btn btn-outline-dark">
                 <i class="glyphicon glyphicon-chevron-left"></i>
                 Назад
@@ -45,6 +66,7 @@
             <a asp-action="ShowDBTable"
                asp-route-pageNum="@(Model.Pages.PageNumber + 1)"
                asp-route-currentYear="@Model.Data.CurrentYear"
+               asp-route-currentMonth="@Model.Data.CurrentMonth"
                class="btn btn-outline-dark">
                 Вперед
                 <i class="glyphicon glyphicon-chevron-right"></i>

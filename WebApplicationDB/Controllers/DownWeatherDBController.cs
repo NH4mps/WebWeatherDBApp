@@ -36,12 +36,15 @@ namespace WebApplicationDB.Controllers
         public async Task<IActionResult> ShowDBTable(int? currentYear, int? currentMonth, int pageNum = 1)
         {
             int pageSize = 15;
-            Console.WriteLine("JOPA BLYAT");
             if (currentYear == null && currentMonth == null)
             {
                 IQueryable<WeatherRow> source = db.WeatherRows;
                 var count = await source.CountAsync();
                 var items = await source.Skip((pageNum - 1) * pageSize).Take(pageSize).ToListAsync();
+                if (items.Count() == 0)
+                {
+                    ViewBag.Message = "No rows for forecast in DB";
+                }
                 WRowsAndYears data = new WRowsAndYears
                 {
                     WeatherRows = items,
@@ -54,7 +57,7 @@ namespace WebApplicationDB.Controllers
                     Pages = pages
                 });
             }
-            else if (currentMonth == null)
+            else if (currentYear != null && currentMonth == null)
             {
                 IQueryable<WeatherRow> source = db.WeatherRows;
                 var items = source.Where(wr => wr.Id.Year == currentYear);
@@ -73,10 +76,32 @@ namespace WebApplicationDB.Controllers
                     Pages = pages
                 });
             }
+            else if (currentYear == null && currentMonth != null)
+            {
+                ViewBag.Message = "Chose year!";
+                IQueryable<WeatherRow> source = db.WeatherRows;
+                var count = await source.CountAsync();
+                var items = await source.Skip((pageNum - 1) * pageSize).Take(pageSize).ToListAsync();
+                WRowsAndYears data = new WRowsAndYears
+                {
+                    WeatherRows = items,
+                    YearsWithMonths = yearsFromDB
+                };
+                PageViewModel pages = new PageViewModel(count, pageNum, pageSize);
+                return View(new ShowDBViewModel
+                {
+                    Data = data,
+                    Pages = pages
+                });
+            }
             else
             {
                 IQueryable<WeatherRow> source = db.WeatherRows;
                 var items = source.Where(wr => wr.Id.Year == currentYear).Where(wr => wr.Id.Month == currentMonth);
+                if (items.Count() == 0)
+                {
+                    ViewBag.Message = "No rows for forecast in chosen month";
+                }
                 var count = await items.CountAsync();
                 var itemsPage = await items.Skip((pageNum - 1) * pageSize).Take(pageSize).ToListAsync();
                 WRowsAndYears data = new WRowsAndYears
@@ -93,18 +118,6 @@ namespace WebApplicationDB.Controllers
                     Pages = pages
                 });
             }
-        }
-
-        [HttpPost]
-        public IActionResult SelectRows(int _Year, int? _Month)
-        {
-            WeatherContext dbContext = new WeatherContext();
-            List<WeatherRow> rowsByYearNMonth = dbContext.WeatherRows.ToList();
-            // Here's row selection
-            //
-            //
-            //
-            return RedirectToActionPermanent("ShowDBTable", "DownWeatherDB", new { selectedRows = rowsByYearNMonth });
         }
     }
 }
