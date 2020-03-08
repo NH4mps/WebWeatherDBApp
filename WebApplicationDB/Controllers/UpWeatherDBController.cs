@@ -94,7 +94,7 @@ namespace WebApplicationDB.Controllers
                     {
                         return RedirectToActionPermanent("AddExcelTable", "UpWeatherDB", new
                         {
-                            statusstring = "One or more from uploading rows already exists in DataBase <br> File wasn't uploaded",
+                            statusstring = "One or more from uploading rows already exists in DataBase. File wasn't uploaded",
                             status = false
                         });
                     }
@@ -113,11 +113,6 @@ namespace WebApplicationDB.Controllers
                     statusstring =  "Data wasn't uploaded",
                     status = false
                 });
-        }
-
-        public IActionResult ShowDBTable()
-        {
-            return View();
         }
     }
 }
