@@ -13,12 +13,12 @@ using WebApplicationDB.Models;
 
 namespace WebApplicationDB.Controllers
 {
-    public class WeatherDBController : Controller
+    public class UpWeatherDBController : Controller
     {
         // GET: /<controller>/
         IWebHostEnvironment _appEnvironment;
 
-        public WeatherDBController(IWebHostEnvironment appEnvironment) => _appEnvironment = appEnvironment;
+        public UpWeatherDBController(IWebHostEnvironment appEnvironment) => _appEnvironment = appEnvironment;
 
         [HttpGet]
         public IActionResult AddExcelTable(string statusstring, bool status)
@@ -47,7 +47,7 @@ namespace WebApplicationDB.Controllers
                 // Is file excel spreadsheet
                 string ext = System.IO.Path.GetExtension(uploadedFile.FileName);
                 if (ext != ".xls" && ext != ".xlsx")
-                    return RedirectToActionPermanent("AddExcelTable", "WeatherDB", new
+                    return RedirectToActionPermanent("AddExcelTable", "UpWeatherDB", new
                     {
                         statusstring = "File extension is not .xls or .xlsx",
                         status = false
@@ -64,7 +64,7 @@ namespace WebApplicationDB.Controllers
                 // Is file formatted
                 ExcelReader parser = new ExcelReader(filePath, _appEnvironment);
                 if (!parser.IsFormatted)
-                    return RedirectToActionPermanent("AddExcelTable", "WeatherDB", new
+                    return RedirectToActionPermanent("AddExcelTable", "UpWeatherDB", new
                     {
                         statusstring = "File's format is incorrect",
                         status = false
@@ -75,7 +75,7 @@ namespace WebApplicationDB.Controllers
 
                 // Is not empty
                 if (excelRows.Count == 0)
-                    return RedirectToActionPermanent("AddExcelTable", "WeatherDB", new
+                    return RedirectToActionPermanent("AddExcelTable", "UpWeatherDB", new
                     {
                         statusstring = "File has no rows that could be read (may be some not nullable params are null)",
                         status = false
@@ -92,7 +92,7 @@ namespace WebApplicationDB.Controllers
                     }
                     catch
                     {
-                        return RedirectToActionPermanent("AddExcelTable", "WeatherDB", new
+                        return RedirectToActionPermanent("AddExcelTable", "UpWeatherDB", new
                         {
                             statusstring = "One or more from uploading rows already exists in DataBase <br> File wasn't uploaded",
                             status = false
@@ -101,14 +101,14 @@ namespace WebApplicationDB.Controllers
                 }
 
                 // Sends operation result
-                return RedirectToActionPermanent("AddExcelTable", "WeatherDB", new
+                return RedirectToActionPermanent("AddExcelTable", "UpWeatherDB", new
                 {
                     statusstring = uploadedFile.FileName + " was uploaded sucsessfully",
                     status = true
                 });
             }
             else
-                return RedirectToActionPermanent("AddExcelTable", "WeatherDB", new
+                return RedirectToActionPermanent("AddExcelTable", "UpWeatherDB", new
                 {
                     statusstring =  "Data wasn't uploaded",
                     status = false
