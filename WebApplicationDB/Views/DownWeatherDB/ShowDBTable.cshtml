@@ -4,12 +4,37 @@
     ViewData["Title"] = "ShowDbPage";
 }
 
+    <form>
+        <div class="form-row align-items-center">
+            <div class="col-auto my-1">
+                <label class="mr-sm-2 sr-only" for="inlineFormCustomSelect">Preference</label>
+                <select class="custom-select mr-sm-2" id="inlineFormCustomSelect" name="currentYear">
+                    <option selected value="@Model.Data.CurrentYear">@Model.Data.CurrentYear</option>
+                    @foreach (YearWithMonths yearWithMonths in Model.Data.YearsWithMonths)
+                    {
+                        if (yearWithMonths.Year != Model.Data.CurrentYear)
+                        {
+                            <option value="@yearWithMonths.Year">@yearWithMonths.Year</option>
+                        }
+                    }
+                    @if (Model.Data.CurrentYear != null)
+                    {
+                        <option value="@null">@null</option>
+                    }
+                </select>
+            </div>
+            <div class="col-auto my-1">
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+        </div>
+    </form>
     <h2>Weather forecast archive</h2>
     <div class="text-center">
         @if (Model.Pages.HasPreviousPage)
         {
             <a asp-action="ShowDBTable"
                asp-route-pageNum="@(Model.Pages.PageNumber - 1)"
+               asp-route-currentYear="@Model.Data.CurrentYear"
                class="btn btn-outline-dark">
                 <i class="glyphicon glyphicon-chevron-left"></i>
                 Назад
@@ -19,6 +44,7 @@
         {
             <a asp-action="ShowDBTable"
                asp-route-pageNum="@(Model.Pages.PageNumber + 1)"
+               asp-route-currentYear="@Model.Data.CurrentYear"
                class="btn btn-outline-dark">
                 Вперед
                 <i class="glyphicon glyphicon-chevron-right"></i>

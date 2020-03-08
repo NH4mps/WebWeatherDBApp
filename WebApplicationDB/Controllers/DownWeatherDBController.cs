@@ -45,7 +45,7 @@ namespace WebApplicationDB.Controllers
                 WRowsAndYears data = new WRowsAndYears
                 {
                     WeatherRows = items,
-                    YearsWithMonths = yearsFromDB,
+                    YearsWithMonths = yearsFromDB
                 };
                 PageViewModel pages = new PageViewModel(count, pageNum, pageSize);
                 return View(new ShowDBViewModel
@@ -56,13 +56,17 @@ namespace WebApplicationDB.Controllers
             }
             else if (currentMonth == null)
             {
+                IQueryable<WeatherRow> source = db.WeatherRows;
+                var items = source.Where(wr => wr.Id.Year == currentYear);
+                var count = await items.CountAsync();
+                var itemsPage = await items.Skip((pageNum - 1) * pageSize).Take(pageSize).ToListAsync();
                 WRowsAndYears data = new WRowsAndYears
                 {
-                    WeatherRows = db.WeatherRows.ToList(),
+                    WeatherRows = itemsPage,
                     YearsWithMonths = yearsFromDB,
-                    CurrentYear = currentYear,
+                    CurrentYear = currentYear
                 };
-                PageViewModel pages = new PageViewModel(db.WeatherRows.Count(), pageNum, 15);
+                PageViewModel pages = new PageViewModel(count, pageNum, pageSize);
                 return View(new ShowDBViewModel
                 {
                     Data = data,
@@ -71,13 +75,18 @@ namespace WebApplicationDB.Controllers
             }
             else
             {
+                IQueryable<WeatherRow> source = db.WeatherRows;
+                var items = source.Where(wr => wr.Id.Year == currentYear).Where(wr => wr.Id.Month == currentMonth);
+                var count = await items.CountAsync();
+                var itemsPage = await items.Skip((pageNum - 1) * pageSize).Take(pageSize).ToListAsync();
                 WRowsAndYears data = new WRowsAndYears
                 {
-                    WeatherRows = db.WeatherRows.ToList(),
+                    WeatherRows = itemsPage,
                     YearsWithMonths = yearsFromDB,
                     CurrentYear = currentYear,
+                    CurrentMonth = currentMonth
                 };
-                PageViewModel pages = new PageViewModel(db.WeatherRows.Count(), pageNum, 15);
+                PageViewModel pages = new PageViewModel(count, pageNum, pageSize);
                 return View(new ShowDBViewModel
                 {
                     Data = data,
