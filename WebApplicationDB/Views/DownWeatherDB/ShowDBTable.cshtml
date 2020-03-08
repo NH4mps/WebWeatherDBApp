@@ -1,6 +1,78 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@using WebApplicationDB.ViewModels
+@model ShowDBViewModel
 @{
     ViewData["Title"] = "ShowDbPage";
 }
+
+    <h2>Weather forecast archive</h2>
+    <div class="text-center">
+        @if (Model.Pages.HasPreviousPage)
+        {
+            <a asp-action="ShowDBTable"
+               asp-route-pageNum="@(Model.Pages.PageNumber - 1)"
+               class="btn btn-outline-dark">
+                <i class="glyphicon glyphicon-chevron-left"></i>
+                Назад
+            </a>
+        }
+        @if (Model.Pages.HasNextPage)
+        {
+            <a asp-action="ShowDBTable"
+               asp-route-pageNum="@(Model.Pages.PageNumber + 1)"
+               class="btn btn-outline-dark">
+                Вперед
+                <i class="glyphicon glyphicon-chevron-right"></i>
+            </a>
+        }
+    </div>
+    <table class="table">
+        <tr>
+            <th>Дата/Время (московское)</th>
+            <th>T</th>
+            <th>Отн. влажность воздуха, %</th>
+            <th>Td, мм</th>
+            <th>Атм. давление, мм рт.ст.</th>
+            <th>Направление ветра</th>
+            <th>Скорость ветра, м/с</th>
+            <th>Облачность, %</th>
+            <th>h</th>
+            <th>VV</th>
+            <th>Погодные явления</th>
+        </tr>
+        @foreach (WeatherRow row in Model.Data.WeatherRows)
+        {
+            <tr>
+                <td>@row.Id</td>
+                <td>@row.T</td>
+                <td>@row.Humidity</td>
+                <td>@row.Td</td>
+                <td>@row.Pressure</td>
+                <td>@row.WindDir</td>
+                <td>@row.WindSpeed</td>
+                <td>@row.Cloudy</td>
+                <td>@row.H</td>
+                <td>@row.VV</td>
+                <td>@row.WeatherConds</td>
+            </tr>
+        }
+    </table>
+    <div class="text-center">
+        @if (Model.Pages.HasPreviousPage)
+        {
+            <a asp-action="ShowDBTable"
+               asp-route-pageNum="@(Model.Pages.PageNumber - 1)"
+               class="btn btn-outline-dark">
+                <i class="glyphicon glyphicon-chevron-left"></i>
+                Назад
+            </a>
+        }
+        @if (Model.Pages.HasNextPage)
+        {
+            <a asp-action="ShowDBTable"
+               asp-route-pageNum="@(Model.Pages.PageNumber + 1)"
+               class="btn btn-outline-dark">
+                Вперед
+                <i class="glyphicon glyphicon-chevron-right"></i>
+            </a>
+        }
+    </div>

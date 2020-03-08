@@ -5,36 +5,85 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using WebApplicationDB.Models;
 using WebApplicationDB.ViewModels;
+using Microsoft.EntityFrameworkCore;
 
 namespace WebApplicationDB.Controllers
 {
     public class DownWeatherDBController : Controller
     {
-        private List<WeatherRow> DataFromDB;
-        private List<YearWithMonths> YearsFromDB;
+        private WeatherContext db;
+        private List<YearWithMonths> yearsFromDB;
 
-        public DownWeatherDBController()
+        public DownWeatherDBController() 
         {
-            WeatherContext dbContext = new WeatherContext();
-            DataFromDB = dbContext.WeatherRows.ToList();
+            db = new WeatherContext();
+            yearsFromDB = new List<YearWithMonths>();
+
+            IQueryable <WeatherRow> source = db.WeatherRows;
+            var years = source.Select(wr => wr.Id.Year).Distinct().ToList();
+            foreach (int year in years)
+            {
+                List<int> months = source.Where(wr => wr.Id.Year == year).Select(wr => wr.Id.Month).Distinct().ToList();
+                yearsFromDB.Add(new YearWithMonths
+                {
+                    Year = year,
+                    Months = months
+                });
+            }
         }
 
         [HttpGet]
-        public IActionResult ShowDBTable(List<WeatherRow> selectedRows, int? currentYear, int? currentMonth)
+        public async Task<IActionResult> ShowDBTable(int? currentYear, int? currentMonth, int pageNum = 1)
         {
-            if (selectedRows == null)
-                return View(new WRowsAndYears {
-                    WeatherRows = DataFromDB,
-                    YearsWithMonths = YearsFromDB
+            int pageSize = 15;
+            Console.WriteLine("JOPA BLYAT");
+            if (currentYear == null && currentMonth == null)
+            {
+                IQueryable<WeatherRow> source = db.WeatherRows;
+                var count = await source.CountAsync();
+                var items = await source.Skip((pageNum - 1) * pageSize).Take(pageSize).ToListAsync();
+                WRowsAndYears data = new WRowsAndYears
+                {
+                    WeatherRows = items,
+                    YearsWithMonths = yearsFromDB,
+                };
+                PageViewModel pages = new PageViewModel(count, pageNum, pageSize);
+                return View(new ShowDBViewModel
+                {
+                    Data = data,
+                    Pages = pages
                 });
-            else
-                // Here's 
-                return View(new WRowsAndYears {
-                    WeatherRows = selectedRows, 
-                    YearsWithMonths = YearsFromDB,
+            }
+            else if (currentMonth == null)
+            {
+                WRowsAndYears data = new WRowsAndYears
+                {
+                    WeatherRows = db.WeatherRows.ToList(),
+                    YearsWithMonths = yearsFromDB,
                     CurrentYear = currentYear,
-                    CurrentMonth = currentMonth
+                };
+                PageViewModel pages = new PageViewModel(db.WeatherRows.Count(), pageNum, 15);
+                return View(new ShowDBViewModel
+                {
+                    Data = data,
+                    Pages = pages
                 });
+            }
+            else
+            {
+                WRowsAndYears data = new WRowsAndYears
+                {
+                    WeatherRows = db.WeatherRows.ToList(),
+                    YearsWithMonths = yearsFromDB,
+                    CurrentYear = currentYear,
+                };
+                PageViewModel pages = new PageViewModel(db.WeatherRows.Count(), pageNum, 15);
+                return View(new ShowDBViewModel
+                {
+                    Data = data,
+                    Pages = pages
+                });
+            }
         }
 
         [HttpPost]
