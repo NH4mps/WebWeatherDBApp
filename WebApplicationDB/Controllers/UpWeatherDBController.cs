@@ -114,10 +114,5 @@ namespace WebApplicationDB.Controllers
                     status = false
                 });
         }
-
-        public IActionResult ShowDBTable()
-        {
-            return View();
-        }
     }
 }
