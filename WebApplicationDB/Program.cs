@@ -14,13 +14,13 @@ namespace WebApplicationDB
     {
         public static void Main(string[] args)
         {
-            using (WeatherContext db = new WeatherContext())
-            {
-                var allRows = db.WeatherRows;
-                db.WeatherRows.RemoveRange(allRows);
-                db.SaveChanges();
-                Console.WriteLine("Объекты успешно удалены");
-            }
+            //using (WeatherContext db = new WeatherContext())
+            //{
+            //    var allRows = db.WeatherRows;
+            //    db.WeatherRows.RemoveRange(allRows);
+            //    db.SaveChanges();
+            //    Console.WriteLine("Объекты успешно удалены");
+            //}
             CreateHostBuilder(args).Build().Run();
         }
 

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using WebApplicationDB.Models;
 
 namespace WebApplicationDB
 {
@@ -31,6 +32,13 @@ namespace WebApplicationDB
         {
             if (env.IsDevelopment())
             {
+                using (WeatherContext db = new WeatherContext())
+                {
+                    var allRows = db.WeatherRows;
+                    db.WeatherRows.RemoveRange(allRows);
+                    db.SaveChanges();
+                    Console.WriteLine("Объекты успешно удалены");
+                }
                 app.UseDeveloperExceptionPage();
             }
             else

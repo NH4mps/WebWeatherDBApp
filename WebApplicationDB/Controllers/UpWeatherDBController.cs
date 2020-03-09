@@ -24,7 +24,7 @@ namespace WebApplicationDB.Controllers
         [HttpGet]
         public IActionResult AddExcelTable(List<string> statusStrings, List<string> colors)
         {
-            if (statusStrings == null)
+            if (statusStrings.Count() == 0)
             {
                 return View(new AddTableViewModel
                 {
@@ -77,12 +77,13 @@ namespace WebApplicationDB.Controllers
                     }
 
                     // Parsing
-                    List<WeatherRow> excelRows = parser.GetEntities();
-
-                    // Is not empty
-                    if (excelRows.Count == 0)
+                    bool operationStatus = true;
+                    List<WeatherRow> excelRows = parser.GetEntities(ref operationStatus);
+                    if (!operationStatus)
                     {
-                        statusStringList.Add(file.FileName + " has no rows that could be read (may be some not nullable params are null). File wan't uploaded.");
+                        statusStringList.Add(
+                            "In " + file.FileName + " something wrong with " + (excelRows.Count + 1) +
+                            " data row (may be some not nullable cells are null)");
                         colorList.Add("text-danger");
                         continue;
                     }
