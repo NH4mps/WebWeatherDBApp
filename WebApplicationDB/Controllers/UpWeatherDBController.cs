@@ -8,7 +8,6 @@ using System.IO;
 using Microsoft.AspNetCore.Hosting;
 using WebApplicationDB.lib;
 using WebApplicationDB.Models;
-using WebApplicationDB.ViewModels;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -22,104 +21,98 @@ namespace WebApplicationDB.Controllers
         public UpWeatherDBController(IWebHostEnvironment appEnvironment) => _appEnvironment = appEnvironment;
 
         [HttpGet]
-        public IActionResult AddExcelTable(List<string> statusStrings, List<string> colors)
+        public IActionResult AddExcelTable(string statusstring, bool status)
         {
-            if (statusStrings == null)
+            if (statusstring == null)
             {
-                return View(new AddTableViewModel
-                {
-                    statusStringList = new List<string> { "Chose one ore more Excel files" },
-                    colorList = new List<string> { "" }
-                });
+                ViewBag.StatusString = "Chose file, then click submit button";
+                ViewBag.Color = "";
             }
             else
             {
-                return View(new AddTableViewModel
-                {
-                    statusStringList = statusStrings,
-                    colorList = colors
-                });
+                ViewBag.StatusString = statusstring;
+                if (status == true)
+                    ViewBag.Color = "text-success";
+                else
+                    ViewBag.Color = "text-danger";
             }
+            return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> Upload(List<IFormFile> uploadedFiles)
+        public async Task<IActionResult> Upload(IFormFile uploadedFile)
         {
-            List<string> statusStringList = new List<string>();
-            List<string> colorList = new List<string>();
-            if (uploadedFiles != null)
+            if (uploadedFile != null)
             {
-                foreach (IFormFile file in uploadedFiles)
+                // Is file excel spreadsheet
+                string ext = System.IO.Path.GetExtension(uploadedFile.FileName);
+                if (ext != ".xls" && ext != ".xlsx")
+                    return RedirectToActionPermanent("AddExcelTable", "UpWeatherDB", new
+                    {
+                        statusstring = "File extension is not .xls or .xlsx",
+                        status = false
+                    });
+
+                // Uploads to rhe root and gets file stream
+                string filePath = _appEnvironment.WebRootPath + "/excelTables/" + uploadedFile.FileName;
+
+                using (var stream = System.IO.File.Create(filePath))
                 {
-                    // Is file excel spreadsheet
-                    string ext = System.IO.Path.GetExtension(file.FileName);
-                    if (ext != ".xls" && ext != ".xlsx")
-                    {
-                        statusStringList.Add(file.FileName + " extension is not .xls or .xlsx. File wan't uploaded.");
-                        colorList.Add("text-danger");
-                        continue;
-                    }
-
-                    // Uploads to rhe root and gets file stream
-                    string filePath = _appEnvironment.WebRootPath + "/excelTables/" + file.FileName;
-                    using (var stream = System.IO.File.Create(filePath))
-                    {
-                        await file.CopyToAsync(stream);
-                    }
-
-                    // Is file formatted
-                    ExcelReader parser = new ExcelReader(filePath, _appEnvironment);
-                    if (!parser.IsFormatted)
-                    {
-                        statusStringList.Add(file.FileName + " file's format is incorrect. File wan't uploaded.");
-                        colorList.Add("text-danger");
-                        continue;
-                    }
-
-                    // Parsing
-                    List<WeatherRow> excelRows = parser.GetEntities();
-
-                    // Is not empty
-                    if (excelRows.Count == 0)
-                    {
-                        statusStringList.Add(file.FileName + " has no rows that could be read (may be some not nullable params are null). File wan't uploaded.");
-                        colorList.Add("text-danger");
-                        continue;
-                    }
-
-                    // Adds rows to DB table
-                    using (WeatherContext db = new WeatherContext())
-                    {
-                        foreach (WeatherRow row in excelRows)
-                            db.WeatherRows.Add(row);
-                        try
-                        {
-                            db.SaveChanges();
-                        }
-                        catch
-                        {
-                            statusStringList.Add("In file" + file.FileName + " one or more from uploading rows already exists in DataBase. Files wasn't uploaded");
-                            colorList.Add("text-danger");
-                            continue;
-                        }
-                    }
-
-                    // Sends operation result
-                    statusStringList.Add( file.FileName + " file was uploaded sucsessfully");
-                    colorList.Add("text-success");
+                    await uploadedFile.CopyToAsync(stream);
                 }
+
+                // Is file formatted
+                ExcelReader parser = new ExcelReader(filePath, _appEnvironment);
+                if (!parser.IsFormatted)
+                    return RedirectToActionPermanent("AddExcelTable", "UpWeatherDB", new
+                    {
+                        statusstring = "File's format is incorrect",
+                        status = false
+                    });
+
+                // Parsing
+                List<WeatherRow> excelRows = parser.GetEntities();
+
+                // Is not empty
+                if (excelRows.Count == 0)
+                    return RedirectToActionPermanent("AddExcelTable", "UpWeatherDB", new
+                    {
+                        statusstring = "File has no rows that could be read (may be some not nullable params are null)",
+                        status = false
+                    });
+
+                // Adds rows to DB table
+                using (WeatherContext db = new WeatherContext())
+                {
+                    foreach (WeatherRow row in excelRows)
+                        db.WeatherRows.Add(row);
+                    try
+                    {
+                        db.SaveChanges();
+                    }
+                    catch
+                    {
+                        return RedirectToActionPermanent("AddExcelTable", "UpWeatherDB", new
+                        {
+                            statusstring = "One or more from uploading rows already exists in DataBase. File wasn't uploaded",
+                            status = false
+                        });
+                    }
+                }
+
+                // Sends operation result
+                return RedirectToActionPermanent("AddExcelTable", "UpWeatherDB", new
+                {
+                    statusstring = uploadedFile.FileName + " was uploaded sucsessfully",
+                    status = true
+                });
             }
             else
-            {
-                statusStringList.Add("Files were not uploaded");
-                colorList.Add("text-danger");
-            }
-
-            return RedirectToActionPermanent("AddExcelTable", "UpWeatherDB", new
-            {
-                statusStrings = statusStringList,
-                colors = colorList
-            });
+                return RedirectToActionPermanent("AddExcelTable", "UpWeatherDB", new
+                {
+                    statusstring =  "Data wasn't uploaded",
+                    status = false
+                });
         }
     }
 }
