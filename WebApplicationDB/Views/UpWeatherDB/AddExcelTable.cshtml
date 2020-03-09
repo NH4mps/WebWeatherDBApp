@@ -1,19 +1,21 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@using WebApplicationDB.ViewModels
+@model AddTableViewModel
 @{
     ViewData["Title"] = "AddTablePage";
 }
 
-    <form method="post" asp-controller="UpWeatherDB" asp-action="Upload" enctype="multipart/form-data">
-        <div class="form-group">
-            <label for="FormControlFile">
-                Chose an Excel spreadsheet in the same format as shown below
-            </label>
-            <input required name="uploadedFile" type="file" class="form-control-file" id="FormControlFile">
-        </div>
-        <button type="submit" class="btn btn-primary">Upload data to DB</button>
-    </form>
-    <div class="@ViewBag.Color">
-        @ViewBag.StatusString
+<form method="post" asp-controller="UpWeatherDB" asp-action="Upload" enctype="multipart/form-data">
+    <div class="form-group">
+        <label for="FormControlFile">
+            Chose an Excel spreadsheet in the same format as shown below
+        </label>
+        <input required multiple name="uploadedFiles" type="file" class="form-control-file" id="FormControlFile">
     </div>
+    <button type="submit" class="btn btn-primary">Upload data to DB</button>
+</form>
+<ul class="list-group list-group-flush">
+    @for (int i = 0; i < Model.statusStringList.Count(); i++)
+    {
+        <li class="list-group-item @Model.colorList[i]">@Model.statusStringList[i]</li>
+    }
+</ul>
