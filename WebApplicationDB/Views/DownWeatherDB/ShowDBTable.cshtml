@@ -56,77 +56,79 @@
 
 <h2>Weather forecast archive</h2>
 
-<form method="post"
-      asp-action="ShowDBTable"
-      asp-route-currentYear="@Model.Data.CurrentYear"
-      asp-route-currentMonth="@Model.Data.CurrentMonth">
-    <div class="form-row justify-content-center">
-        <div class="col-3"></div>
-        @if (Model.Pages.HasPreviousPage)
-        {
-            <div class="col-1">
-                <a asp-action="ShowDBTable"
-                   asp-route-pageNum="1"
-                   asp-route-currentYear="@Model.Data.CurrentYear"
-                   asp-route-currentMonth="@Model.Data.CurrentMonth"
-                   class="btn btn-outline-dark">
-                    <i class="glyphicon glyphicon-chevron-left"></i>
-                    &lt&lt
-                </a>
-            </div>
-            <div class="col-1">
-                <a asp-action="ShowDBTable"
-                   asp-route-pageNum="@(Model.Pages.PageNumber - 1)"
-                   asp-route-currentYear="@Model.Data.CurrentYear"
-                   asp-route-currentMonth="@Model.Data.CurrentMonth"
-                   class="btn btn-outline-dark">
-                    <i class="glyphicon glyphicon-chevron-left"></i>
-                    Back
-                </a>
-            </div>
-        }
-        else
-        {
-            <div class="col-2"></div>
-        }
-
-        <div class="col-1">
-            <input id="InputPage" type="number" size="@Model.Pages.TotalPages" name="pageNum" min="1" max="@Model.Pages.TotalPages" value="@Model.Pages.PageNumber">
-        </div>
-        <div class="col-1">
-            <button type="submit" class="btn btn-outline-dark">Set</button>
-        </div>
-
-        @if (Model.Pages.HasNextPage)
-        {
-            <div class="col-1">
-                <a asp-action="ShowDBTable"
-                   asp-route-pageNum="@(Model.Pages.PageNumber + 1)"
-                   asp-route-currentYear="@Model.Data.CurrentYear"
-                   asp-route-currentMonth="@Model.Data.CurrentMonth"
-                   class="btn btn-outline-dark">
-                    Forward
-                    <i class="glyphicon glyphicon-chevron-right"></i>
-                </a>
-            </div>
-            <div class="col-1">
-                <a asp-action="ShowDBTable"
-                   asp-route-pageNum="@(Model.Pages.TotalPages)"
-                   asp-route-currentYear="@Model.Data.CurrentYear"
-                   asp-route-currentMonth="@Model.Data.CurrentMonth"
-                   class="btn btn-outline-dark">
-                    <i class="glyphicon glyphicon-chevron-left"></i>
-                    &gt&gt
-                </a>
-            </div>
-        }
-        else
-        {
-            <div class="col-2"></div>
-        }
-        <div class="col-3"></div>
+<div class="row">
+    <div class="col-auto">
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                @if (Model.Pages.HasPreviousPage)
+                {
+                    <li class="page-item">
+                        <a asp-action="ShowDBTable"
+                           asp-route-pageNum="1"
+                           asp-route-currentYear="@Model.Data.CurrentYear"
+                           asp-route-currentMonth="@Model.Data.CurrentMonth"
+                           class="page-link">
+                            &lt&lt
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a asp-action="ShowDBTable"
+                           asp-route-pageNum="@(Model.Pages.PageNumber - 1)"
+                           asp-route-currentYear="@Model.Data.CurrentYear"
+                           asp-route-currentMonth="@Model.Data.CurrentMonth"
+                           class="page-link">
+                            Back
+                        </a>
+                    </li>
+                }
+                @if (Model.Pages.HasNextPage)
+                {
+                    <li class="page-item">
+                        <a asp-action="ShowDBTable"
+                           asp-route-pageNum="@(Model.Pages.PageNumber + 1)"
+                           asp-route-currentYear="@Model.Data.CurrentYear"
+                           asp-route-currentMonth="@Model.Data.CurrentMonth"
+                           class="page-link">
+                            Forward
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a asp-action="ShowDBTable"
+                           asp-route-pageNum="@(Model.Pages.TotalPages)"
+                           asp-route-currentYear="@Model.Data.CurrentYear"
+                           asp-route-currentMonth="@Model.Data.CurrentMonth"
+                           class="page-link">
+                            &gt&gt
+                        </a>
+                    </li>
+                }
+            </ul>
+        </nav>
     </div>
-</form>
+
+    <div class="col-auto">
+        <form method="post"
+              asp-action="ShowDBTable"
+              asp-route-currentYear="@Model.Data.CurrentYear"
+              asp-route-currentMonth="@Model.Data.CurrentMonth">
+            <div class="form-row">
+                <div class="col-auto">
+                    <label class="sr-only" for="inlineFormInputGroup">Username</label>
+                    <div class="input-group mb-2">
+                        <div class="input-group-prepend">
+                            <div class="input-group-text">Page Num</div>
+                        </div>
+                        <input id="InputPage" type="number" size="@Model.Pages.TotalPages" name="pageNum" min="1" max="@Model.Pages.TotalPages" value="@Model.Pages.PageNumber">
+                    </div>
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary mb-2">Go</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
 
 <table class="table">
     <tr>
@@ -160,23 +162,75 @@
     }
 </table>
 
-<div class="text-center">
-    @if (Model.Pages.HasPreviousPage)
-    {
-        <a asp-action="ShowDBTable"
-           asp-route-pageNum="@(Model.Pages.PageNumber - 1)"
-           class="btn btn-outline-dark">
-            <i class="glyphicon glyphicon-chevron-left"></i>
-            Назад
-        </a>
-    }
-    @if (Model.Pages.HasNextPage)
-    {
-        <a asp-action="ShowDBTable"
-           asp-route-pageNum="@(Model.Pages.PageNumber + 1)"
-           class="btn btn-outline-dark">
-            Вперед
-            <i class="glyphicon glyphicon-chevron-right"></i>
-        </a>
-    }
+<div class="row">
+    <div class="col-auto">
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                @if (Model.Pages.HasPreviousPage)
+                {
+                    <li class="page-item">
+                        <a asp-action="ShowDBTable"
+                           asp-route-pageNum="1"
+                           asp-route-currentYear="@Model.Data.CurrentYear"
+                           asp-route-currentMonth="@Model.Data.CurrentMonth"
+                           class="page-link">
+                            &lt&lt
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a asp-action="ShowDBTable"
+                           asp-route-pageNum="@(Model.Pages.PageNumber - 1)"
+                           asp-route-currentYear="@Model.Data.CurrentYear"
+                           asp-route-currentMonth="@Model.Data.CurrentMonth"
+                           class="page-link">
+                            Back
+                        </a>
+                    </li>
+                }
+                @if (Model.Pages.HasNextPage)
+                {
+                    <li class="page-item">
+                        <a asp-action="ShowDBTable"
+                           asp-route-pageNum="@(Model.Pages.PageNumber + 1)"
+                           asp-route-currentYear="@Model.Data.CurrentYear"
+                           asp-route-currentMonth="@Model.Data.CurrentMonth"
+                           class="page-link">
+                            Forward
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a asp-action="ShowDBTable"
+                           asp-route-pageNum="@(Model.Pages.TotalPages)"
+                           asp-route-currentYear="@Model.Data.CurrentYear"
+                           asp-route-currentMonth="@Model.Data.CurrentMonth"
+                           class="page-link">
+                            &gt&gt
+                        </a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    </div>
+
+    <div class="col-auto">
+        <form method="post"
+              asp-action="ShowDBTable"
+              asp-route-currentYear="@Model.Data.CurrentYear"
+              asp-route-currentMonth="@Model.Data.CurrentMonth">
+            <div class="form-row">
+                <div class="col-auto">
+                    <label class="sr-only" for="inlineFormInputGroup">Username</label>
+                    <div class="input-group mb-2">
+                        <div class="input-group-prepend">
+                            <div class="input-group-text">Page Num</div>
+                        </div>
+                        <input id="InputPage" type="number" size="@Model.Pages.TotalPages" name="pageNum" min="1" max="@Model.Pages.TotalPages" value="@Model.Pages.PageNumber">
+                    </div>
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary mb-2">Go</button>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
