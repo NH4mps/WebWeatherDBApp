@@ -45,6 +45,10 @@ namespace WebApplicationDB.Controllers
         [HttpPost]
         public async Task<IActionResult> Upload(List<IFormFile> uploadedFiles)
         {
+            foreach (var head in Request.Headers)
+            {
+                Console.WriteLine(head.Key + "\t" + head.Value);
+            }
             List<string> statusStringList = new List<string>();
             List<string> colorList = new List<string>();
             if (uploadedFiles != null)
