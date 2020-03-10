@@ -90,8 +90,9 @@ namespace WebApplicationDB.lib
                 return null;
         }
 
-        public List<WeatherRow> GetEntities()
+        public List<WeatherRow> GetEntities(ref bool finished)
         {
+            finished = true;
             // Initializes result list
             List<WeatherRow> res = new List<WeatherRow>();
 
@@ -108,27 +109,34 @@ namespace WebApplicationDB.lib
                 excelBook = new XSSFWorkbook(file);
 
             //Gets list of weather etnities
-            for(int i = 0; i < excelBook.NumberOfSheets; i++)
+            try
             {
-                ISheet sheet = excelBook.GetSheetAt(i);
-                for (int j = 4; j < sheet.LastRowNum; j++)
+                for (int i = 0; i < excelBook.NumberOfSheets; i++)
                 {
-                    IRow row = sheet.GetRow(j);
-                    res.Add(new WeatherRow
+                    ISheet sheet = excelBook.GetSheetAt(i);
+                    for (int j = 4; j < sheet.LastRowNum; j++)
                     {
-                        Id = DateTime.Parse(row.GetCell(0).ToString() + " " + row.GetCell(1).ToString()),
-                        T = float.Parse(row.GetCell(2).ToString()),
-                        Humidity = float.Parse(row.GetCell(3).ToString()),
-                        Td = float.Parse(row.GetCell(4).ToString()),
-                        Pressure = int.Parse(row.GetCell(5).ToString()),
-                        WindDir = row.GetCell(6)?.ToString(),
-                        WindSpeed = nullableIntParse(row.GetCell(7).ToString()),
-                        Cloudy = nullableIntParse(row.GetCell(8).ToString()),
-                        H = nullableIntParse(row.GetCell(9).ToString()),
-                        VV = nullableIntParse(row.GetCell(10).ToString()),
-                        WeatherConds = row.GetCell(11)?.ToString()
-                    });
+                        IRow row = sheet.GetRow(j);
+                        res.Add(new WeatherRow
+                        {
+                            Id = DateTime.Parse(row.GetCell(0).ToString() + " " + row.GetCell(1).ToString()),
+                            T = float.Parse(row.GetCell(2).ToString()),
+                            Humidity = float.Parse(row.GetCell(3).ToString()),
+                            Td = float.Parse(row.GetCell(4).ToString()),
+                            Pressure = int.Parse(row.GetCell(5).ToString()),
+                            WindDir = row.GetCell(6)?.ToString(),
+                            WindSpeed = nullableIntParse(row.GetCell(7).ToString()),
+                            Cloudy = nullableIntParse(row.GetCell(8).ToString()),
+                            H = nullableIntParse(row.GetCell(9).ToString()),
+                            VV = nullableIntParse(row.GetCell(10).ToString()),
+                            WeatherConds = row.GetCell(11)?.ToString()
+                        });
+                    }
                 }
+            }
+            catch
+            {
+                finished = false;
             }
 
             return res;
