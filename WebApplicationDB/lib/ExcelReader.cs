@@ -96,10 +96,6 @@ namespace WebApplicationDB.lib
             // Initializes result list
             List<WeatherRow> res = new List<WeatherRow>();
 
-            // Is file formated
-            if (!IsFormatted)
-                return res;
-
             // Initializes Excel workbook
             IWorkbook excelBook;
             FileStream file = new FileStream(filePath, FileMode.Open, FileAccess.Read);
