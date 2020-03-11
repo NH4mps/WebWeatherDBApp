@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -25,6 +26,8 @@ namespace WebApplicationDB
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
+            services.AddDbContext<WeatherContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("WeatherDBConnection")));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -32,7 +35,9 @@ namespace WebApplicationDB
         {
             if (env.IsDevelopment())
             {
-                using (WeatherContext db = new WeatherContext())
+                var optionBuilder = new DbContextOptionsBuilder<WeatherContext>();
+                var options = optionBuilder.UseSqlServer(Configuration.GetConnectionString("WeatherDBConnection")).Options;
+                using (WeatherContext db = new WeatherContext(options))
                 {
                     var allRows = db.WeatherRows;
                     db.WeatherRows.RemoveRange(allRows);

@@ -14,9 +14,10 @@ namespace WebApplicationDB.Controllers
         private WeatherContext db;
         private List<YearWithMonths> yearsFromDB;
 
-        public DownWeatherDBController() 
+        public DownWeatherDBController(WeatherContext _db) 
         {
-            db = new WeatherContext();
+            //db = _context;
+            db = _db;
             yearsFromDB = new List<YearWithMonths>();
 
             IQueryable <WeatherRow> source = db.WeatherRows;

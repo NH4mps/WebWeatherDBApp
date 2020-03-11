@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Hosting;
 using WebApplicationDB.lib;
 using WebApplicationDB.Models;
 using WebApplicationDB.ViewModels;
+using Microsoft.EntityFrameworkCore;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -43,7 +44,7 @@ namespace WebApplicationDB.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Upload(List<IFormFile> uploadedFiles)
+        public async Task<IActionResult> Upload(List<IFormFile> uploadedFiles, [FromServices] WeatherContext db)
         {
             foreach (var head in Request.Headers)
             {
@@ -93,20 +94,17 @@ namespace WebApplicationDB.Controllers
                     }
 
                     // Adds rows to DB table
-                    using (WeatherContext db = new WeatherContext())
+                    foreach (WeatherRow row in excelRows)
+                        db.WeatherRows.Add(row);
+                    try
                     {
-                        foreach (WeatherRow row in excelRows)
-                            db.WeatherRows.Add(row);
-                        try
-                        {
-                            db.SaveChanges();
-                        }
-                        catch
-                        {
-                            statusStringList.Add("In file" + file.FileName + " one or more from uploading rows already exists in DataBase. Files wasn't uploaded");
-                            colorList.Add("text-danger");
-                            continue;
-                        }
+                        db.SaveChanges();
+                    }
+                    catch
+                    {
+                        statusStringList.Add("In file" + file.FileName + " one or more from uploading rows already exists in DataBase. Files wasn't uploaded");
+                        colorList.Add("text-danger");
+                        continue;
                     }
 
                     // Sends operation result

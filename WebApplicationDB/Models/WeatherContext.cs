@@ -10,14 +10,10 @@ namespace WebApplicationDB.Models
     {
         public DbSet<WeatherRow> WeatherRows { get; set; }
 
-        public WeatherContext()
+        public WeatherContext(DbContextOptions<WeatherContext> options)
+        : base(options)
         {
-            Database.EnsureCreated();
-        }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=WeatherDB;Trusted_Connection=True;");
+            //Database.EnsureCreated();
         }
     }
 }
