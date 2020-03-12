@@ -14,19 +14,17 @@ namespace WebApplicationDB.Controllers
         private WeatherContext db;
         private List<int> yearsFromDB;
 
-        public DownWeatherDBController(WeatherContext _db) 
-        {
-            db = _db;
-
-            IQueryable <WeatherRow> source = db.WeatherRows;
-            yearsFromDB = source.Select(wr => wr.Id.Year).Distinct().ToList();
-        }
+        public DownWeatherDBController(WeatherContext _db) => db = _db;
 
         public async Task<IActionResult> ShowDBTable(int? currentYear, int? currentMonth, int pageNum = 1)
         {
             int pageSize = 15 ;
-            IQueryable<WeatherRow> queryItems = db.WeatherRows;
             
+            // Gets the list of the years from db
+            IQueryable<WeatherRow> queryItems = db.WeatherRows;
+            List<int> yearsFromDB = await queryItems.Select(wr => wr.Id.Year).Distinct().ToListAsync();
+
+            // Gets a list of rows with the same year and month that are set by the parameters
             if (currentYear == null && currentMonth != null)
                 ViewBag.Message = "Chose year!";
             else
@@ -40,6 +38,7 @@ namespace WebApplicationDB.Controllers
             var count = await queryItems.CountAsync();
             var pageItems = await queryItems.Skip((pageNum - 1) * pageSize).Take(pageSize).ToListAsync();
 
+            // Forms viewModel
             WRowsAndYears data = new WRowsAndYears
             {
                 WeatherRows = pageItems,
