@@ -12,24 +12,14 @@ namespace WebApplicationDB.Controllers
     public class DownWeatherDBController : Controller
     {
         private WeatherContext db;
-        private List<YearWithMonths> yearsFromDB;
+        private List<int> yearsFromDB;
 
         public DownWeatherDBController(WeatherContext _db) 
         {
             db = _db;
-            yearsFromDB = new List<YearWithMonths>();
 
             IQueryable <WeatherRow> source = db.WeatherRows;
-            var years = source.Select(wr => wr.Id.Year).Distinct().ToList();
-            foreach (int year in years)
-            {
-                List<int> months = source.Where(wr => wr.Id.Year == year).Select(wr => wr.Id.Month).Distinct().ToList();
-                yearsFromDB.Add(new YearWithMonths
-                {
-                    Year = year,
-                    Months = months
-                });
-            }
+            yearsFromDB = source.Select(wr => wr.Id.Year).Distinct().ToList();
         }
 
         public async Task<IActionResult> ShowDBTable(int? currentYear, int? currentMonth, int pageNum = 1)
@@ -53,7 +43,7 @@ namespace WebApplicationDB.Controllers
             WRowsAndYears data = new WRowsAndYears
             {
                 WeatherRows = pageItems,
-                YearsWithMonths = yearsFromDB,
+                Years = yearsFromDB,
                 CurrentYear = currentYear,
                 CurrentMonth = currentMonth
             };

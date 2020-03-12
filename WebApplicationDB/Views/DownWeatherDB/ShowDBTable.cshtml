@@ -19,11 +19,11 @@
                     <option selected value="@Model.Data.CurrentYear">@Model.Data.CurrentYear</option>
                     <option value="@null">Any Year</option>
                 }
-                @foreach (YearWithMonths yearWithMonths in Model.Data.YearsWithMonths)
+                @foreach (int year in Model.Data.Years)
                 {
-                    if (yearWithMonths.Year != Model.Data.CurrentYear)
+                    if (year != Model.Data.CurrentYear)
                     {
-                        <option value="@yearWithMonths.Year">@yearWithMonths.Year</option>
+                        <option value="@year">@year</option>
                     }
                 }
             </select>
