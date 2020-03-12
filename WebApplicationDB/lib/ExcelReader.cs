@@ -14,20 +14,19 @@ namespace WebApplicationDB.lib
 
     public class ExcelReader
     {
-        private string filePath;
-        private string ext;
+        private string formatFilePath;
+        IWorkbook excelBook;
         private readonly List<Tuple<string, string>> headers;
 
-        public ExcelReader(string _filePath, IWebHostEnvironment _appEnvironment)
+        public ExcelReader(MemoryStream _fileStream, string _formatFilePath)
         {
             // Fields initialization
-            filePath = _filePath;
-            ext = Path.GetExtension(filePath);
+            excelBook = WorkbookFactory.Create(_fileStream);
 
             // Intitalizes format headers
-            string formatFilePath = _appEnvironment.WebRootPath + "/excelTables/formatedList.xlsx";
+            formatFilePath = _formatFilePath;
             FileStream formatFile = new FileStream(formatFilePath, FileMode.Open, FileAccess.Read);
-            IWorkbook excelFormatFile = new XSSFWorkbook(formatFile);
+            IWorkbook excelFormatFile = WorkbookFactory.Create(formatFile);
 
             // Reads 3rd and 4th rows from sample 
             headers = new List<Tuple<string, string>>();
@@ -43,14 +42,6 @@ namespace WebApplicationDB.lib
             {
                 // Inintializes buffer for headers
                 List<Tuple<string, string>> readHeaders = new List<Tuple<string, string>>();
-
-                // Initializes Excel workbook
-                IWorkbook excelBook;
-                FileStream file = new FileStream(filePath, FileMode.Open, FileAccess.Read);
-                if (ext == "xls")
-                    excelBook = new HSSFWorkbook(file);
-                else
-                    excelBook = new XSSFWorkbook(file);
 
                 // For each sheet in Excel file checks if 3rd and 4th rows are foramtted
                 bool flag = true;
@@ -93,16 +84,9 @@ namespace WebApplicationDB.lib
         public List<WeatherRow> GetEntities(ref bool finished)
         {
             finished = true;
+
             // Initializes result list
             List<WeatherRow> res = new List<WeatherRow>();
-
-            // Initializes Excel workbook
-            IWorkbook excelBook;
-            FileStream file = new FileStream(filePath, FileMode.Open, FileAccess.Read);
-            if (ext == "xls")
-                excelBook = new HSSFWorkbook(file);
-            else
-                excelBook = new XSSFWorkbook(file);
 
             //Gets list of weather etnities
             try

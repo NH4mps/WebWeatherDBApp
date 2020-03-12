@@ -16,7 +16,6 @@ namespace WebApplicationDB.Controllers
 
         public DownWeatherDBController(WeatherContext _db) 
         {
-            //db = _context;
             db = _db;
             yearsFromDB = new List<YearWithMonths>();
 
@@ -35,7 +34,7 @@ namespace WebApplicationDB.Controllers
 
         public async Task<IActionResult> ShowDBTable(int? currentYear, int? currentMonth, int pageNum = 1)
         {
-            int pageSize = 15;
+            int pageSize = 15 ;
             if (currentYear == null && currentMonth == null)
             {
                 IQueryable<WeatherRow> source = db.WeatherRows;

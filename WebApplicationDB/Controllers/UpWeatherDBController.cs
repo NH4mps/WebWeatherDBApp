@@ -18,9 +18,9 @@ namespace WebApplicationDB.Controllers
     public class UpWeatherDBController : Controller
     {
         // GET: /<controller>/
-        IWebHostEnvironment _appEnvironment;
+        IWebHostEnvironment appEnvironment;
 
-        public UpWeatherDBController(IWebHostEnvironment appEnvironment) => _appEnvironment = appEnvironment;
+        public UpWeatherDBController(IWebHostEnvironment _appEnvironment) => appEnvironment = _appEnvironment;
 
         [HttpGet]
         public IActionResult AddExcelTable(List<string> statusStrings, List<string> colors)
@@ -46,10 +46,6 @@ namespace WebApplicationDB.Controllers
         [HttpPost]
         public async Task<IActionResult> Upload(List<IFormFile> uploadedFiles, [FromServices] WeatherContext db)
         {
-            foreach (var head in Request.Headers)
-            {
-                Console.WriteLine(head.Key + "\t" + head.Value);
-            }
             List<string> statusStringList = new List<string>();
             List<string> colorList = new List<string>();
             if (uploadedFiles != null)
@@ -65,15 +61,14 @@ namespace WebApplicationDB.Controllers
                         continue;
                     }
 
-                    // Uploads to rhe root and gets file stream
-                    string filePath = _appEnvironment.WebRootPath + "/excelTables/" + file.FileName;
-                    using (var stream = System.IO.File.Create(filePath))
-                    {
-                        await file.CopyToAsync(stream);
-                    }
+                    // Gets file stream
+                    MemoryStream fileStream = new MemoryStream();
+                    await file.CopyToAsync(fileStream);
+
+                    string formatFilePath = appEnvironment.WebRootPath + "/excelTables/formatedList.xlsx";
 
                     // Is file formatted
-                    ExcelReader parser = new ExcelReader(filePath, _appEnvironment);
+                    ExcelReader parser = new ExcelReader(fileStream, formatFilePath);
                     if (!parser.IsFormatted)
                     {
                         statusStringList.Add(file.FileName + " file's format is incorrect. File wan't uploaded.");
