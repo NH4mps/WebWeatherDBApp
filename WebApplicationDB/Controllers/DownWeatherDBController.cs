@@ -12,111 +12,48 @@ namespace WebApplicationDB.Controllers
     public class DownWeatherDBController : Controller
     {
         private WeatherContext db;
-        private List<YearWithMonths> yearsFromDB;
+        private List<int> yearsFromDB;
 
-        public DownWeatherDBController() 
-        {
-            db = new WeatherContext();
-            yearsFromDB = new List<YearWithMonths>();
-
-            IQueryable <WeatherRow> source = db.WeatherRows;
-            var years = source.Select(wr => wr.Id.Year).Distinct().ToList();
-            foreach (int year in years)
-            {
-                List<int> months = source.Where(wr => wr.Id.Year == year).Select(wr => wr.Id.Month).Distinct().ToList();
-                yearsFromDB.Add(new YearWithMonths
-                {
-                    Year = year,
-                    Months = months
-                });
-            }
-        }
+        public DownWeatherDBController(WeatherContext _db) => db = _db;
 
         public async Task<IActionResult> ShowDBTable(int? currentYear, int? currentMonth, int pageNum = 1)
         {
-            int pageSize = 15;
-            if (currentYear == null && currentMonth == null)
-            {
-                IQueryable<WeatherRow> source = db.WeatherRows;
-                var count = await source.CountAsync();
-                var items = await source.Skip((pageNum - 1) * pageSize).Take(pageSize).ToListAsync();
-                if (items.Count() == 0)
-                {
-                    ViewBag.Message = "No rows for forecast in DB";
-                }
-                WRowsAndYears data = new WRowsAndYears
-                {
-                    WeatherRows = items,
-                    YearsWithMonths = yearsFromDB
-                };
-                PageViewModel pages = new PageViewModel(count, pageNum, pageSize);
-                return View(new ShowDBViewModel
-                {
-                    Data = data,
-                    Pages = pages
-                });
-            }
-            else if (currentYear != null && currentMonth == null)
-            {
-                IQueryable<WeatherRow> source = db.WeatherRows;
-                var items = source.Where(wr => wr.Id.Year == currentYear);
-                var count = await items.CountAsync();
-                var itemsPage = await items.Skip((pageNum - 1) * pageSize).Take(pageSize).ToListAsync();
-                WRowsAndYears data = new WRowsAndYears
-                {
-                    WeatherRows = itemsPage,
-                    YearsWithMonths = yearsFromDB,
-                    CurrentYear = currentYear
-                };
-                PageViewModel pages = new PageViewModel(count, pageNum, pageSize);
-                return View(new ShowDBViewModel
-                {
-                    Data = data,
-                    Pages = pages
-                });
-            }
-            else if (currentYear == null && currentMonth != null)
-            {
+            int pageSize = 15 ;
+            
+            // Gets the list of the years from db
+            IQueryable<WeatherRow> queryItems = db.WeatherRows;
+            List<int> yearsFromDB = await queryItems.Select(wr => wr.Id.Year).Distinct().ToListAsync();
+
+            // Gets a list of rows with the same year and month that are set by the parameters
+            if (currentYear == null && currentMonth != null)
                 ViewBag.Message = "Chose year!";
-                IQueryable<WeatherRow> source = db.WeatherRows;
-                var count = await source.CountAsync();
-                var items = await source.Skip((pageNum - 1) * pageSize).Take(pageSize).ToListAsync();
-                WRowsAndYears data = new WRowsAndYears
-                {
-                    WeatherRows = items,
-                    YearsWithMonths = yearsFromDB
-                };
-                PageViewModel pages = new PageViewModel(count, pageNum, pageSize);
-                return View(new ShowDBViewModel
-                {
-                    Data = data,
-                    Pages = pages
-                });
-            }
             else
             {
-                IQueryable<WeatherRow> source = db.WeatherRows;
-                var items = source.Where(wr => wr.Id.Year == currentYear).Where(wr => wr.Id.Month == currentMonth);
-                if (items.Count() == 0)
-                {
-                    ViewBag.Message = "No rows for forecast in chosen month";
-                }
-                var count = await items.CountAsync();
-                var itemsPage = await items.Skip((pageNum - 1) * pageSize).Take(pageSize).ToListAsync();
-                WRowsAndYears data = new WRowsAndYears
-                {
-                    WeatherRows = itemsPage,
-                    YearsWithMonths = yearsFromDB,
-                    CurrentYear = currentYear,
-                    CurrentMonth = currentMonth
-                };
-                PageViewModel pages = new PageViewModel(count, pageNum, pageSize);
-                return View(new ShowDBViewModel
-                {
-                    Data = data,
-                    Pages = pages
-                });
+                if (currentYear != null)
+                    queryItems = queryItems.Where(wr => wr.Id.Year == currentYear);
+                if (currentMonth != null)
+                    queryItems = queryItems.Where(wr => wr.Id.Month == currentMonth);
             }
+
+            var count = await queryItems.CountAsync();
+            var pageItems = await queryItems.Skip((pageNum - 1) * pageSize).Take(pageSize).ToListAsync();
+
+            // Forms viewModel
+            WRowsAndYears data = new WRowsAndYears
+            {
+                WeatherRows = pageItems,
+                Years = yearsFromDB,
+                CurrentYear = currentYear,
+                CurrentMonth = currentMonth
+            };
+
+            PageViewModel pages = new PageViewModel(count, pageNum, pageSize);
+
+            return View(new ShowDBViewModel
+            {
+                Data = data,
+                Pages = pages
+            });
         }
     }
 }
